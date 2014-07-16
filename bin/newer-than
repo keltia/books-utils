@@ -20,7 +20,7 @@ require 'sqlite3'
 NEWER = <<-"EOQ"
 select books.id as bid, books.title as t, custom_column_1.value as v
 from books, custom_column_1
-where v >= '2014-07-04' and bid = custom_column_1.book
+where v >= ? and bid = custom_column_1.book
 order by v;
 EOQ
 
@@ -59,7 +59,7 @@ Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
       |opt_calibre|
       calibre_dir = opt_calibre
     end
-    opts.on('-f', '--format=json|yaml') do
+    opts.on('-f', '--format=json|yaml|xml') do
       |opt_format|
       if opt_format !~ %r{json|yaml|xml}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
