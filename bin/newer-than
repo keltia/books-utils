@@ -4,6 +4,7 @@
 # @author Ollivier Robert <roberto@keltia.net>
 # @copyright 2014 by Ollivier Robert
 
+# Our name
 MYNAME = File.basename($0)
 
 # Standard modules
@@ -25,13 +26,15 @@ EOQ
 
 # Main variables
 #
+# Catalog name
 CATALOG = 'metadata.db'
+# Calibre directory
 CALIBRE = File.join(ENV['HOME'], 'Documents', 'Perso', 'e-Books')
 
 # Main method
 #
 # @param [Array] argv parameters
-# @return exit code
+# @return [FixNum] exit code
 def main(argv)
   # time_t time
   newer_than = Time.now - (3600 *24)
