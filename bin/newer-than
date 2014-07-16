@@ -1,0 +1,85 @@
+#! /usr/bin/env ruby -w
+#
+# @abstract extract books newer than given date from Calibre catalog
+# @author Ollivier Robert <roberto@keltia.net>
+# @copyright 2014 by Ollivier Robert
+
+MYNAME = File.basename($0)
+
+# Standard modules
+#
+require 'optparse'
+
+# Non-standard modules
+#
+require 'sqlite3'
+
+# SQL queries
+#
+NEWER = <<-"EOQ"
+select books.id as bid, books.title as t, custom_column_1.value as v
+from books, custom_column_1
+where v >= '2014-07-04' and bid = custom_column_1.book
+order by v;
+EOQ
+
+# Main variables
+#
+CATALOG = 'metadata.db'
+CALIBRE = File.join(ENV['HOME'], 'Documents', 'Perso', 'e-Books')
+
+# Main method
+#
+# @param [Array] argv parameters
+# @return exit code
+def main(argv)
+  # time_t time
+  newer_than = Time.now - (3600 *24)
+  # text-based threshold for SQL
+  newer_date = ''
+  # output format
+  format = nil
+
+  usage = <<-"EOTEXT"
+Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
+  EOTEXT
+
+  banner = <<-"EOTEXT"
+#{MYNAME} v#{Books::Utils::VERSION}
+
+#{usage}
+  EOTEXT
+
+  argv.options do |opts|
+    opts.banner = banner
+    opts.on('-d', '--calibre-dir=DIR', 'Where to find Calibre data') do
+      |opt_calibre|
+      calibre_dir = opt_calibre
+    end
+    opts.on('-f', '--format=json|yaml') do
+      |opt_format|
+      if opt_format !~ %r{json|yaml|xml}
+        $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
+        return 1
+      end
+      format = opt_format
+    end
+    opts.on('-t', '--newer-than=DATE', 'Threshold date to look for') do
+      |opt_newer|
+      newer_date = opt_newer
+    end
+    opts.on('-h', 'Help', 'Display this usage') do
+      puts banner
+      return 255
+    end
+    opts.parse!
+  end
+
+  argv.options = nil
+
+  0
+end
+
+if __FILE__ == $0
+  exit(main(ARGV) || 1)
+end
