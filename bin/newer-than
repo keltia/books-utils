@@ -7,6 +7,8 @@
 # Our name
 MYNAME = File.basename($0)
 
+$LOAD_PATH += File.join(File.expand_path($0), '..', 'lib')
+
 # Standard modules
 #
 require 'optparse'
