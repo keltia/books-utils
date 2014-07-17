@@ -19,6 +19,9 @@ require 'sqlite3'
 
 # SQL queries
 #
+# XXX specific to my catalog's schema with added column "Added on".
+# "timestamp" column may be an adequate substitute
+#
 NEWER = <<-"EOQ"
 select books.id as bid, books.title as t, custom_column_1.value as v
 from books, custom_column_1
