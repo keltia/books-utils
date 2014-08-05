@@ -1,6 +1,6 @@
 # Books::Utils
 
-This gem includes various Calibre-related utilities.
+This gem includes various [Calibre](http://calibre-ebook.com) -related utilities.
 
 ## Installation
 
@@ -11,9 +11,15 @@ Install it yourself as:
 It should install the dependencies itself automagically (namely Ox & Oj for
 XML and JSON support.
 
+## BUGS
+
+Not tested on Windows at all, no system to check on.  Tested on OSX.
+Should work on FreeBSD and Linux.  If not please submit issues (and patch
+if you can).
+
 ## Usage
 
-Usage: newer-than [-h] [-f format] [-d DATE|-t DAYS]
+Usage: newer-than [-h] [-f format] [-d DATE | -t DAYS]
 
 Default is 1 day.
 
