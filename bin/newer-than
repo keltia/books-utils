@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby -w
+#! /usr/bin/env ruby
 #
 # @abstract extract books newer than given date from Calibre catalog
 # @author Ollivier Robert <roberto@keltia.net>
