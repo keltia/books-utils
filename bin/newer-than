@@ -119,7 +119,7 @@ def output_results(list, format = nil)
          else
            title = "#{bk['title']} (#{series}, ##{bk['series_index']})"
          end
-         puts("Authors: %-15s\t\tTitle: %s" % [bk['authors'], title])
+         puts("Authors: %-20s\tTitle: %s" % [bk['authors'], title])
       end
   end
 end
