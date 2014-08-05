@@ -23,4 +23,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'sqlite3'
   spec.add_runtime_dependency 'oj'
+  spec.add_runtime_dependency 'ox'
 end
