@@ -103,7 +103,7 @@ end
 #
 # @param [Array] list    all the results
 # @param [String] format use the specified format (default is plain display)
-def output_results(list, format = nil)
+def output_results(list, newer_than, format = nil)
   case format
     when /json/
       puts Oj.dump(list)
@@ -112,6 +112,7 @@ def output_results(list, format = nil)
     when /yaml/
       puts list.to_yaml
     else
+      puts("#{list.length} new/updated books since #{newer_than}:\n\n")
       list.each do |bk|
          series = bk['series']
          if series == ''
@@ -119,7 +120,7 @@ def output_results(list, format = nil)
          else
            title = "#{bk['title']} (#{series}, ##{bk['series_index']})"
          end
-         puts("Authors: %-20s\tTitle: %s" % [bk['authors'], title])
+         puts("Authors: %-25s\tTitle: %s" % [bk['authors'], title])
       end
   end
 end
@@ -192,7 +193,7 @@ Default is 1 day.
 
   # Convert/display results
   #
-  output_results(list, format)
+  output_results(list, newer_than, format)
   0
 end
 
