@@ -142,7 +142,7 @@ Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
 
   # Do the stuff
   #
-  db = open_db(File.join(CALIBRE, CATALOG))
+  db = open_db(File.join(calibre_dir, CATALOG))
   list = get_list(db, newer_than.iso8601)
 
   if format
