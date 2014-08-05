@@ -1,24 +1,26 @@
 # Books::Utils
 
-TODO: Write a gem description
+This gem includes various Calibre-related utilities.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'books-utils'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install books-utils
+    
+It should install the dependencies itself automagically (namely Ox & Oj for
+XML and JSON support.
 
 ## Usage
 
-TODO: Write usage instructions here
+Usage: newer-than [-h] [-f format] [-d DATE|-t DAYS]
+
+Default is 1 day.
+
+    -d, --since=DATE                 Use that date to search after
+    -f, --format=json|yaml|xml       Specify output format
+    -t, --newer-than=DAYS            Threshold date to look for
+    -h  --help                       Display this usage
 
 ## Contributing
 
