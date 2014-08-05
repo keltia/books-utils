@@ -113,7 +113,7 @@ end
 def output_results(list, format = nil)
     case format
       when /json/
-        pp Oj.dump(list)
+        puts Oj.dump(list)
       when /xml/
         puts Ox.dump(list, :effort => :tolerant)
       when /yaml/
