@@ -5,9 +5,11 @@ For the moment a wrapper around the `calibredb` utility with more output formats
 
 ## Installation
 
-Install it yourself as:
+It is not yet published on http://rubygems.org so you'll need to fork the project
+with `git`and use `bundler` and `rake` to do it manually. 
 
-    $ gem install books-utils
+    bundle
+    rake install
 
 ## Dependencies
 
