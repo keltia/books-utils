@@ -62,6 +62,7 @@ def check_threshold(threshold, that_date)
   else
     newer_than = Time.parse(that_date)
   end
+  newer_than.iso8601
 end
 
 # Get list
@@ -197,7 +198,7 @@ Default is 1 day.
 
   # Do the stuff
   #
-  list = get_list(newer_than.iso8601)
+  list = get_list(newer_than)
 
   # Convert/display results
   #
