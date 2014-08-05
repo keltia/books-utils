@@ -53,6 +53,13 @@ def check_threshold(threshold, that_date)
   if that_date.nil?
     newer_than = Time.at(Time.now.to_i - (threshold * ONEDAY))
   else
+    #
+    # If ALL is specified, get everything from the library with a date
+    # old enough
+    #
+    if that_date == 'ALL'
+      that_date = '2000-01-01'
+    end
     newer_than = Time.parse(that_date)
   end
   newer_than.iso8601
