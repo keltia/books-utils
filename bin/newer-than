@@ -17,14 +17,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(File.expand_path($0)), '..', 'lib'))
 #
 require 'csv'
 require 'optparse'
-require 'pp'
 require 'time'
 require 'tmpdir'
 require 'yaml'
 
 # Non-standard modules
 #
-require 'sqlite3'
 require 'oj'
 require 'ox'
 
