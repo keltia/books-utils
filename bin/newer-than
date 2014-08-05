@@ -104,7 +104,6 @@ def get_list(threshold)
     header_list.map {|h| he[h] = e[header_list.index(h)]}
     list << he
   }
-  book_list
 end
 
 # Output results in the desired format
