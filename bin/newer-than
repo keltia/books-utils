@@ -29,10 +29,19 @@ require 'books/utils/version'
 # "timestamp" column may be an adequate substitute
 #
 NEWER = <<-'EOQ'
-select books.id as bid, books.title as t, custom_column_1.value as v
+select books.id as bid, custom_column_1.value as v
 from books, custom_column_1
 where v >= ? and bid = custom_column_1.book
 order by v;
+EOQ
+
+# Query to display books data
+#
+BOOK_LIST = <<-'EOQ'
+select id, title, authors, series
+from meta
+where id = ?
+order by authors;
 EOQ
 
 # Main variables
