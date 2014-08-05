@@ -7,15 +7,21 @@
 # Our name
 MYNAME = File.basename($0)
 
-$LOAD_PATH += File.join(File.expand_path($0), '..', 'lib')
+$LOAD_PATH << File.join(File.expand_path($0), '..', 'lib')
 
 # Standard modules
 #
 require 'optparse'
+require 'time'
 
 # Non-standard modules
 #
 require 'sqlite3'
+require 'oj'
+
+# My modules
+#
+require 'books/utils/version'
 
 # SQL queries
 #
@@ -35,18 +41,48 @@ EOQ
 CATALOG = 'metadata.db'
 # Calibre directory
 CALIBRE = File.join(ENV['HOME'], 'Documents', 'Perso', 'e-Books')
+# On day in seconds
+ONEDAY = (3600*24)
+
+# Get list
+#
+# @param [SQLite3::Database] handle to the database
+# @param [Fixnum] threshold number of days to check books for
+# @return [Array] list of books
+def get_list(db, threshold)
+  db.execute(NEWER, [threshold])
+end
+
+# Connect to DB
+#
+# @param [String] path filename of the Calibre database
+# @return [SQLite3::Database] handle to the database
+def open_db(path)
+  begin
+    db = SQLite3::Database.new(path)
+  rescue => msg
+    raise(msg)
+  end
+  db
+end
 
 # Main method
 #
 # @param [Array] argv parameters
 # @return [FixNum] exit code
+
 def main(argv)
   # time_t time
-  newer_than = Time.now - (3600 *24)
+  that_date = nil
+
   # text-based threshold for SQL
-  newer_date = ''
+  threshold = 0
+
   # output format
   format = nil
+
+  # Default location
+  calibre_dir = CALIBRE
 
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
@@ -60,9 +96,13 @@ Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
 
   argv.options do |opts|
     opts.banner = banner
-    opts.on('-d', '--calibre-dir=DIR', 'Where to find Calibre data') do
+    opts.on('-D', '--calibre-dir=DIR', 'Where to find Calibre data') do
       |opt_calibre|
       calibre_dir = opt_calibre
+    end
+    opts.on('-d', '--newer-than=DATE', 'Use that date to search after') do
+      |opt_date|
+      that_date = opt_date
     end
     opts.on('-f', '--format=json|yaml|xml') do
       |opt_format|
@@ -74,7 +114,7 @@ Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
     end
     opts.on('-t', '--newer-than=DATE', 'Threshold date to look for') do
       |opt_newer|
-      newer_date = opt_newer
+      threshold = opt_newer.to_i
     end
     opts.on('-h', 'Help', 'Display this usage') do
       puts banner
@@ -85,6 +125,35 @@ Usage: #{MYNAME} [-h] -b DIR -t TAG DIR
 
   argv.options = nil
 
+  # Check options
+  #
+  if threshold != 0 and that_date != nil
+    $stderr.puts('Error: you can not specify both -d and -t!')
+    return 255
+  end
+
+  # How did we specified the threshold?
+  #
+  if that_date.nil?
+    newer_than = Time.at(Time.now.to_i - (threshold * ONEDAY))
+  else
+    newer_than = Time.parse(that_date)
+  end
+
+  # Do the stuff
+  #
+  db = open_db(File.join(CALIBRE, CATALOG))
+  list = get_list(db, newer_than.iso8601)
+
+  if format
+    case format
+      when /json/
+        p Oj.dump(list)
+      else
+        p list
+    end
+  end
+  p list
   0
 end
 
