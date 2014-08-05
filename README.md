@@ -17,12 +17,6 @@ XML and JSON support.
 You MUST install the command-line utilities from within Calibre for this to
 work as it relies on `calibredb` for querying the library.
 
-## BUGS
-
-Not tested on Windows at all, no system to check on.  Tested on OSX.
-Should work on FreeBSD and Linux.  If not please submit issues (and patch
-if you can).
-
 ## Usage
 
     Usage: newer-than [-h] [-D path] [-f format] [-d DATE | -t DAYS]
@@ -41,7 +35,18 @@ if you can).
  
 The default is a simple space-delimited output, suited for cut&paste. You can
 also generate JSON, YAML or XML by specifying the `-f` option.
- 
+
+## Compatibility
+
+It should run on most Ruby implementations, it has been tested with Ruby MRI 2.0
+and Rubinius 2.2.*.
+
+## BUGS
+
+Not tested on Windows at all, no system to check on.  Tested on OSX.
+Should work on FreeBSD and Linux.  If not please submit issues (and patch
+if you can).
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/books-utils/fork )
