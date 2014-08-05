@@ -1,15 +1,21 @@
 # Books::Utils
 
 This gem includes various [Calibre](http://calibre-ebook.com) -related utilities.
+For the moment a wrapper around the `calibredb` utility with more output formats.
 
 ## Installation
 
 Install it yourself as:
 
     $ gem install books-utils
-    
+
+## Dependencies
+
 It should install the dependencies itself automagically (namely Ox & Oj for
 XML and JSON support.
+
+You MUST install the command-line utilities from within Calibre for this to
+work as it relies on `calibredb` for querying the library.
 
 ## BUGS
 
@@ -28,6 +34,11 @@ Default is 1 day.
     -t, --newer-than=DAYS            Threshold date to look for
     -h  --help                       Display this usage
 
+## Output formats
+ 
+The default is a simple space-delimited output, suited for cut&paste. You can
+also generate JSON, YAML or XML by specifying the `-f` option.
+ 
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/books-utils/fork )
