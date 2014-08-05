@@ -28,7 +28,7 @@ require 'books/utils/version'
 # XXX specific to my catalog's schema with added column "Added on".
 # "timestamp" column may be an adequate substitute
 #
-NEWER = <<-"EOQ"
+NEWER = <<-'EOQ'
 select books.id as bid, books.title as t, custom_column_1.value as v
 from books, custom_column_1
 where v >= ? and bid = custom_column_1.book
