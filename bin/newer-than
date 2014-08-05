@@ -154,15 +154,11 @@ Default is 1 day.
 
   argv.options do |opts|
     opts.banner = banner
-    opts.on('-D', '--calibre-dir=DIR', 'Where to find Calibre data') do
-      |opt_calibre|
-      calibre_dir = opt_calibre
-    end
-    opts.on('-d', '--newer-than=DATE', 'Use that date to search after') do
+    opts.on('-d', '--since=DATE', 'Use that date to search after') do
       |opt_date|
       that_date = opt_date
     end
-    opts.on('-f', '--format=json|yaml|xml') do
+    opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
       |opt_format|
       if opt_format !~ %r{json|yaml|xml}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
@@ -170,12 +166,12 @@ Default is 1 day.
       end
       format = opt_format
     end
-    opts.on('-t', '--newer-than=DATE', 'Threshold date to look for') do
+    opts.on('-t', '--newer-than=DAYS', 'Threshold date to look for') do
       |opt_newer|
       threshold = opt_newer.to_i
     end
-    opts.on('-h', 'Help', 'Display this usage') do
-      puts banner
+    opts.on('-h', '--help', 'Display this usage') do
+      puts opts.help
       return 255
     end
     opts.parse!
