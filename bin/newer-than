@@ -205,6 +205,4 @@ Default is 1 day.
   0
 end
 
-if __FILE__ == $0
-  exit(main(ARGV) || 1)
-end
+exit(main(ARGV) || 1)
