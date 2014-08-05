@@ -25,14 +25,17 @@ if you can).
 
 ## Usage
 
-Usage: newer-than [-h] [-f format] [-d DATE | -t DAYS]
+    Usage: newer-than [-h] [-D path] [-f format] [-d DATE | -t DAYS]
 
-Default is 1 day.
+    Default is 1 day.  Default format is space-delimited.
 
-    -d, --since=DATE                 Use that date to search after
-    -f, --format=json|yaml|xml       Specify output format
-    -t, --newer-than=DAYS            Threshold date to look for
-    -h  --help                       Display this usage
+      -D, --library=DIR                Use that library path instead of the default.
+      -d, --since=DATE                 Use that date to search after or ALL
+      -f, --format=json|yaml|xml       Specify output format
+      -t, --newer-than=DAYS            Threshold date to look for
+      -h  --help                       Display this usage
+
+`-d ALL` lists all books.
 
 ## Output formats
  

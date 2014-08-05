@@ -69,7 +69,7 @@ end
 #
 # @param [Fixnum] threshold number of days to check books for
 # @return [Array] list of books id in CSV
-def get_list(threshold)
+def get_list(threshold, library_path = nil)
   book_list = nil
   raw_list  = nil
 
@@ -79,7 +79,11 @@ def get_list(threshold)
 
     # Use calibredb to fetch data
     #
-    ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
+    if library_path.nil?
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
+    else
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --with-library=#{library_path} --fields 'title,authors,series,series_index' --sort-by 'authors'}
+    end
 
     # XXX Hack to remove the fscking BOM
     #
@@ -147,8 +151,11 @@ def main(argv)
   # output format
   format = nil
 
+  # Library path
+  library_path = nil
+
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-h] [-f format] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-h] [-D path] [-f format] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
@@ -161,6 +168,10 @@ Default is 1 day.  Default format is space-delimited.
 
   argv.options do |opts|
     opts.banner = banner
+    opts.on('-D', '--library=DIR', 'Use that library path instead of the default.') do
+      |opt_dir|
+      library_path = opt_dir
+    end
     opts.on('-d', '--since=DATE', 'Use that date to search after') do
       |opt_date|
       that_date = opt_date
@@ -192,7 +203,7 @@ Default is 1 day.  Default format is space-delimited.
 
   # Do the stuff
   #
-  list = get_list(newer_than)
+  list = get_list(newer_than, library_path)
 
   # Convert/display results
   #
