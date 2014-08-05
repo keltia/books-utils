@@ -141,9 +141,9 @@ def main(argv)
   format = nil
 
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-h] [-D DIR] [-d DATE|-t DAYS]
+Usage: #{MYNAME} [-h] [-f format] [-d DATE | -t DAYS]
 
-Default is 1 day.
+Default is 1 day.  Default format is space-delimited.
   EOTEXT
 
   banner = <<-"EOTEXT"
