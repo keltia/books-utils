@@ -111,14 +111,14 @@ end
 # @param [Array] list    all the results
 # @param [String] format use the specified format (default is plain display)
 def output_results(list, format = nil)
-    case format
-      when /json/
-        puts Oj.dump(list)
-      when /xml/
-        puts Ox.dump(list, :effort => :tolerant)
-      when /yaml/
-        puts list.to_yaml
-      else
+  case format
+    when /json/
+      puts Oj.dump(list)
+    when /xml/
+      puts Ox.dump(list, :effort => :tolerant)
+    when /yaml/
+      puts list.to_yaml
+    else
       #
       # By default use an ERB template
       #
@@ -127,10 +127,10 @@ def output_results(list, format = nil)
       #begin
       erb = ERB.new(DEF_TMPL, 0, '<>')
       puts erb.run(binding)
-      #rescue => msg
-      #  $stderr.puts("Error: #{msg}")
-      #end
-    end
+    #rescue => msg
+    #  $stderr.puts("Error: #{msg}")
+    #end
+  end
 end
 
 # Main method
