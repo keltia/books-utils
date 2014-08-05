@@ -7,7 +7,7 @@
 # Our name
 MYNAME = File.basename($0)
 
-$LOAD_PATH << File.join(File.expand_path($0), '..', 'lib')
+$LOAD_PATH.unshift(File.join(File.dirname(File.expand_path($0)), '..', 'lib'))
 
 # Standard modules
 #
