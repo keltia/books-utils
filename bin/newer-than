@@ -36,13 +36,6 @@ ONEDAY = (3600*24)
 # Path to the tmp file for results
 TMPDIR = ".newer-than"
 
-# Default ERB template
-DEF_TMPL = <<-'EOT'
-<% list.each do |bk| %>
-Authors: <%= bk["authors"] %> - Series: <%= bk['series'] %> - Title: <%= bk['title'] %>
-<% end %>
-EOT
-
 # Check threshold
 #
 # @param [String|Fixnum] value threshold value to be checked
@@ -79,7 +72,7 @@ def get_list(threshold)
 
     # Use calibredb to fetch data
     #
-    ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series' --sort-by 'authors'}
+    ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
 
     # XXX Hack to remove the fscking BOM
     #
@@ -119,17 +112,15 @@ def output_results(list, format = nil)
     when /yaml/
       puts list.to_yaml
     else
-      #
-      # By default use an ERB template
-      #
-      require 'erb'
-
-      #begin
-      erb = ERB.new(DEF_TMPL, 0, '<>')
-      puts erb.run(binding)
-    #rescue => msg
-    #  $stderr.puts("Error: #{msg}")
-    #end
+      list.each do |bk|
+         series = bk['series']
+         if series == ''
+           title = bk['title']
+         else
+           title = "#{bk['title']} (#{series}, ##{bk['series_index']})"
+         end
+         puts("Authors: %-15s\t\tTitle: %s" % [bk['authors'], title])
+      end
   end
 end
 
