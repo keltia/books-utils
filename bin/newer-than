@@ -53,15 +53,6 @@ CALIBRE = File.join(ENV['HOME'], 'Documents', 'Perso', 'e-Books')
 # On day in seconds
 ONEDAY = (3600*24)
 
-# Get list
-#
-# @param [SQLite3::Database] handle to the database
-# @param [Fixnum] threshold number of days to check books for
-# @return [Array] list of books
-def get_list(db, threshold)
-  db.execute(NEWER, [threshold])
-end
-
 # Connect to DB
 #
 # @param [String] path filename of the Calibre database
@@ -73,6 +64,55 @@ def open_db(path)
     raise(msg)
   end
   db
+end
+
+# Check threshold
+#
+# @param [String|Fixnum] value threshold value to be checked
+# @return [Time] precise time to checked upon
+def check_threshold(threshold, that_date)
+  # Check options
+  #
+  if threshold != 0 and that_date != nil
+    $stderr.puts('Error: you can not specify both -d and -t!')
+    return 255
+  end
+
+  # How did we specified the threshold?
+  #
+  if that_date.nil?
+    newer_than = Time.at(Time.now.to_i - (threshold * ONEDAY))
+  else
+    newer_than = Time.parse(that_date)
+  end
+end
+
+# Get list
+#
+# @param [SQLite3::Database] handle to the database
+# @param [Fixnum] threshold number of days to check books for
+# @return [Array] list of books
+def get_list(db, threshold)
+  db.execute(NEWER, [threshold])
+end
+
+# Output results in the desired format
+#
+# @param [Array] list    all the results
+# @param [String] format use the specified format (default is plain display)
+def output_results(list, format)
+  if format
+    case format
+      when /json/
+        puts Oj.dump(list)
+      when /xml/
+        puts Ox.dump(list, :effort => :tolerant)
+      else
+        puts list
+    end
+  else
+    puts list
+  end
 end
 
 # Main method
@@ -136,35 +176,18 @@ Default is 1 day.
 
   argv.options = nil
 
-  # Check options
+  # Manage options
   #
-  if threshold != 0 and that_date != nil
-    $stderr.puts('Error: you can not specify both -d and -t!')
-    return 255
-  end
-
-  # How did we specified the threshold?
-  #
-  if that_date.nil?
-    newer_than = Time.at(Time.now.to_i - (threshold * ONEDAY))
-  else
-    newer_than = Time.parse(that_date)
-  end
+  newer_than = check_threshold(threshold, that_date)
 
   # Do the stuff
   #
   db = open_db(File.join(calibre_dir, CATALOG))
   list = get_list(db, newer_than.iso8601)
 
-  if format
-    case format
-      when /json/
-        p Oj.dump(list)
-      else
-        p list
-    end
-  end
-  p list
+  # Convert/display results
+  #
+  output_results(list, format)
   0
 end
 
