@@ -3,6 +3,10 @@
 # @abstract extract books newer than given date from Calibre catalog
 # @author Ollivier Robert <roberto@keltia.net>
 # @copyright 2014 by Ollivier Robert
+#
+# XXX Uses calibredb to extract most data
+#
+# REQUIRES: command-line Calibre utilities to be installed
 
 # Our name
 MYNAME = File.basename($0)
@@ -11,8 +15,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(File.expand_path($0)), '..', 'lib'))
 
 # Standard modules
 #
+require 'csv'
 require 'optparse'
+require 'pp'
 require 'time'
+require 'tmpdir'
+require 'yaml'
 
 # Non-standard modules
 #
@@ -24,48 +32,18 @@ require 'ox'
 #
 require 'books/utils/version'
 
-# SQL queries
-#
-# XXX specific to my catalog's schema with added column "Added on".
-# "timestamp" column may be an adequate substitute
-#
-NEWER = <<-'EOQ'
-select books.id as bid, custom_column_1.value as v
-from books, custom_column_1
-where v >= ? and bid = custom_column_1.book
-order by v;
-EOQ
-
-# Query to display books data
-#
-BOOK_LIST = <<-'EOQ'
-select id, title, authors, series
-from meta
-where id = ?
-order by authors;
-EOQ
-
-# Main variables
-#
-# Catalog name
-CATALOG = 'metadata.db'
-# Calibre directory
-CALIBRE = File.join(ENV['HOME'], 'Documents', 'Perso', 'e-Books')
 # On day in seconds
 ONEDAY = (3600*24)
 
-# Connect to DB
-#
-# @param [String] path filename of the Calibre database
-# @return [SQLite3::Database] handle to the database
-def open_db(path)
-  begin
-    db = SQLite3::Database.new(path)
-  rescue => msg
-    raise(msg)
-  end
-  db
-end
+# Path to the tmp file for results
+TMPDIR = ".newer-than"
+
+# Default ERB template
+DEF_TMPL = <<-'EOT'
+<% list.each do |bk| %>
+Authors: <%= bk["authors"] %> - Series: <%= bk['series'] %> - Title: <%= bk['title'] %>
+<% end %>
+EOT
 
 # Check threshold
 #
@@ -90,30 +68,71 @@ end
 
 # Get list
 #
-# @param [SQLite3::Database] handle to the database
 # @param [Fixnum] threshold number of days to check books for
-# @return [Array] list of books
-def get_list(db, threshold)
-  db.execute(NEWER, [threshold])
+# @return [Array] list of books id in CSV
+def get_list(threshold)
+  book_list = nil
+  raw_list  = nil
+
+  # Wrap the temp directory
+  #
+  Dir.mktmpdir(TMPDIR) do |dir|
+
+    # Use calibredb to fetch data
+    #
+    ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series' --sort-by 'authors'}
+
+    # XXX Hack to remove the fscking BOM
+    #
+    File.open("#{dir}/booklist.csv", "w", encoding: "UTF-8") do |fh|
+      rest = 0
+      File.open("#{dir}/calibre.csv") do |fr|
+        bom = fr.seek(3)
+        rest = fr.read
+      end
+      fh.print(rest)
+    end
+    # Read back the file
+    #
+    raw_list = CSV.read("#{dir}/booklist.csv", encoding: "UTF-8", converters: :numeric)
+  end
+
+  # Turn this raw array of arrays into something usable
+  #
+  header_list = raw_list.shift
+  book_list = raw_list.inject([]) {|list, e|
+    he = Hash.new
+    header_list.map {|h| he[h] = e[header_list.index(h)]}
+    list << he
+  }
+  book_list
 end
 
 # Output results in the desired format
 #
 # @param [Array] list    all the results
 # @param [String] format use the specified format (default is plain display)
-def output_results(list, format)
-  if format
+def output_results(list, format = nil)
     case format
       when /json/
-        puts Oj.dump(list)
+        pp Oj.dump(list)
       when /xml/
         puts Ox.dump(list, :effort => :tolerant)
+      when /yaml/
+        puts list.to_yaml
       else
-        puts list
+      #
+      # By default use an ERB template
+      #
+      require 'erb'
+
+      #begin
+      erb = ERB.new(DEF_TMPL, 0, '<>')
+      puts erb.run(binding)
+      #rescue => msg
+      #  $stderr.puts("Error: #{msg}")
+      #end
     end
-  else
-    puts list
-  end
 end
 
 # Main method
@@ -130,9 +149,6 @@ def main(argv)
 
   # output format
   format = nil
-
-  # Default location
-  calibre_dir = CALIBRE
 
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-h] [-D DIR] [-d DATE|-t DAYS]
@@ -183,8 +199,7 @@ Default is 1 day.
 
   # Do the stuff
   #
-  db = open_db(File.join(calibre_dir, CATALOG))
-  list = get_list(db, newer_than.iso8601)
+  list = get_list(newer_than.iso8601)
 
   # Convert/display results
   #
