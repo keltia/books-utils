@@ -87,17 +87,12 @@ def get_list(threshold, library_path = nil)
 
     # XXX Hack to remove the fscking BOM
     #
-    File.open("#{dir}/booklist.csv", "w", encoding: "UTF-8") do |fh|
-      rest = 0
-      File.open("#{dir}/calibre.csv") do |fr|
-        bom = fr.seek(3)
-        rest = fr.read
-      end
-      fh.print(rest)
+    rest = 0
+    File.open("#{dir}/calibre.csv", 'r', encoding: 'UTF-8') do |fr|
+      bom = fr.seek(3)
+      rest = fr.read
+      raw_list = CSV.parse(rest, converters: :numeric)
     end
-    # Read back the file
-    #
-    raw_list = CSV.read("#{dir}/booklist.csv", encoding: "UTF-8", converters: :numeric)
   end
 
   # Turn this raw array of arrays into something usable
