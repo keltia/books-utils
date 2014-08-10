@@ -81,18 +81,23 @@ def get_list(threshold, library_path = nil)
     # Use calibredb to fetch data
     #
     if library_path.nil?
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s '#added:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
     else
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s 'date:>=#{threshold}' --with-library=#{library_path} --fields 'title,authors,series,series_index' --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s '#added:>=#{threshold}' --with-library=#{library_path} --fields 'title,authors,series,series_index' --sort-by 'authors'}
     end
 
-    # XXX Hack to remove the fscking BOM
-    #
-    rest = 0
-    File.open("#{dir}/calibre.csv", 'r', encoding: 'UTF-8') do |fr|
-      bom = fr.seek(3)
-      rest = fr.read
-      raw_list = CSV.parse(rest, converters: :numeric)
+    if FileTest.exists?(File.join(dir, 'calibre.csv'))
+      # XXX Hack to remove the fscking BOM
+      #
+      rest = 0
+      File.open("#{dir}/calibre.csv", 'r', encoding: 'UTF-8') do |fr|
+        bom = fr.seek(3)
+        rest = fr.read
+        raw_list = CSV.parse(rest, converters: :numeric)
+      end
+    else
+      $stderr.puts("Something went wrong, no csv generated")
+      nil
     end
   end
 
@@ -203,7 +208,9 @@ Default is 1 day.  Default format is space-delimited.
 
   # Convert/display results
   #
-  output_results(list, newer_than, format)
+  unless list.nil?
+    output_results(list, newer_than, format)
+  end
   0
 end
 
