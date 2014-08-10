@@ -36,6 +36,10 @@ date each book was added, or edit the source to change `#added:` into `date:`.
 
 `-d ALL` lists all books.
 
+To post directly into a pastebin, install the `pastebin` gem and use
+
+    newer-than -dYYYY-MM-DD | pastebin -p -f - -n 'New books from YYYY-MM-DD.' -e 7D
+
 ## Output formats
  
 The default is a simple space-delimited output, suited for cut&paste. You can
