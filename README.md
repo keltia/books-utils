@@ -19,6 +19,9 @@ XML and JSON support.
 You MUST install the command-line utilities from within Calibre for this to
 work as it relies on `calibredb` for querying the library.
 
+You MUST also have a custom column named 'Added:' that is supposed to have the
+date each book was added, or edit the source to change `#added:` into `date:`.
+
 ## Usage
 
     Usage: newer-than [-h] [-D path] [-f format] [-d DATE | -t DAYS]
