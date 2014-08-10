@@ -7,11 +7,12 @@
 # XXX Uses calibredb to extract most data
 #
 # REQUIRES: command-line Calibre utilities to be installed
-
+# REQUIRES: at least the 'added' custom column (see #added: in the request)
+#
 # Our name
 MYNAME = File.basename($0)
 
-$LOAD_PATH.unshift(File.join(File.dirname(File.expand_path($0)), '..', 'lib'))
+$LOAD_PATH.unshift(File.join(__dir__, File.expand_path($0), '..', 'lib'))
 
 # Standard modules
 #
