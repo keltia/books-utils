@@ -151,14 +151,17 @@ def send_pastebin(str, newer_than)
   url = ''
 
   Dir.mktmpdir(TMPDIR) do |dir|
-    File.open(File.join(dir, 'tmp-pastebin.txt'), 'w') do |fh|
-      fh.puts(str)
+    Dir.chdir(dir) do
+      fname = 'tmp-pastebin.txt'
+      File.open(fname, 'w') do |fh|
+        fh.puts(str)
+      end
+      options['api_paste_code'] = fname
+      options['api_paste_name'] = "New/updated books since #{newer_than}"
+      options['api_paste_private'] = 1
+      options['api_paste_expire_date'] = '1W'
+      url = Pastebin.new(options).paste
     end
-    options['api_paste_code'] = 'tmp-pastebin.txt'
-    options['api_paste_name'] = "New/updated books since #{newer_than}"
-    options['api_paste_private'] = 1
-    options['api_paste_expire_date'] = '1W'
-    url = Pastebin.new(options).paste
   end
   url
 end
