@@ -26,6 +26,7 @@ require 'yaml'
 #
 require 'oj'
 require 'ox'
+require 'pastebin'
 
 # My modules
 #
@@ -115,16 +116,18 @@ end
 #
 # @param [Array] list    all the results
 # @param [String] format use the specified format (default is plain display)
-def output_results(list, newer_than, format = nil)
+# @return [String] result
+def format_results(list, newer_than, format = nil)
+  out = ''
   case format
     when /json/
-      puts Oj.dump(list)
+      out = Oj.dump(list)
     when /xml/
-      puts Ox.dump(list, :effort => :tolerant)
+      out = Ox.dump(list, :effort => :tolerant)
     when /yaml/
-      puts list.to_yaml
+      out = list.to_yaml
     else
-      puts("#{list.length} new/updated books since #{newer_than}:\n\n")
+      out = "#{list.length} new/updated books since #{newer_than}:\n\n"
       list.each do |bk|
          series = bk['series']
          if series == ''
@@ -132,16 +135,38 @@ def output_results(list, newer_than, format = nil)
          else
            title = "#{bk['title']} (#{series}, ##{bk['series_index']})"
          end
-         puts("Authors: %-25s\tTitle: %s" % [bk['authors'], title])
+         out += "Authors: %-25s\tTitle: %s\n" % [bk['authors'], title]
       end
   end
+  out
+end
+
+# Sends the result string to pastebin.com as a private paste
+#
+# @param [String] str code yo want to send
+# @param [String] newer_than Use this date to generate the paste's title
+# @return [String] URL from Pastebin#paste
+def send_pastebin(str, newer_than)
+  options = {}
+  url = ''
+
+  Dir.mktmpdir(TMPDIR) do |dir|
+    File.open(File.join(dir, 'tmp-pastebin.txt'), 'w') do |fh|
+      fh.puts(str)
+    end
+    options['api_paste_code'] = 'tmp-pastebin.txt'
+    options['api_paste_name'] = "New/updated books since #{newer_than}"
+    options['api_paste_private'] = 1
+    options['api_paste_expire_date'] = '1W'
+    url = Pastebin.new(options).paste
+  end
+  url
 end
 
 # Main method
 #
 # @param [Array] argv parameters
 # @return [FixNum] exit code
-
 def main(argv)
   # time_t time
   that_date = nil
@@ -154,6 +179,9 @@ def main(argv)
 
   # Library path
   library_path = nil
+
+  # Send to pastebin directly?
+  do_pastebin = false
 
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-h] [-D path] [-f format] [-d DATE | -t DAYS]
@@ -172,6 +200,10 @@ Default is 1 day.  Default format is space-delimited.
     opts.on('-D', '--library=DIR', 'Use that library path instead of the default.') do
       |opt_dir|
       library_path = opt_dir
+    end
+    opts.on('-P', '--pastebin', 'Post directly to pastebin.') do
+      |opt_pastebin|
+      do_pastebin = true
     end
     opts.on('-d', '--since=DATE', 'Use that date to search after') do
       |opt_date|
@@ -209,7 +241,11 @@ Default is 1 day.  Default format is space-delimited.
   # Convert/display results
   #
   unless list.nil?
-    output_results(list, newer_than, format)
+    str = format_results(list, newer_than, format)
+    puts(str)
+    if do_pastebin
+      puts(send_pastebin(str, newer_than))
+    end
   end
   0
 end

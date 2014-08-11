@@ -14,7 +14,7 @@ with `git`and use `bundler` and `rake` to do it manually.
 ## Dependencies
 
 It should install the dependencies itself automagically (namely Ox & Oj for
-XML and JSON support.
+XML and JSON support and `pastebin`.
 
 You MUST install the command-line utilities from within Calibre for this to
 work as it relies on `calibredb` for querying the library.
@@ -29,6 +29,7 @@ date each book was added, or edit the source to change `#added:` into `date:`.
     Default is 1 day.  Default format is space-delimited.
 
       -D, --library=DIR                Use that library path instead of the default.
+      -P, --pastebin                   Post directly to pastebin.
       -d, --since=DATE                 Use that date to search after or ALL
       -f, --format=json|yaml|xml       Specify output format
       -t, --newer-than=DAYS            Threshold date to look for
