@@ -39,7 +39,9 @@ date each book was added, or edit the source to change `#added:` into `date:`.
 
 To post directly into a pastebin, install the `pastebin` gem and use
 
-    newer-than -dYYYY-MM-DD | pastebin -p -f - -n 'New books from YYYY-MM-DD.' -e 7D
+    newer-than -dYYYY-MM-DD -P
+    
+You may need to get an API key for pastebin, see [the pastebin API](http://pastebin.com/api).
 
 ## Output formats
  
