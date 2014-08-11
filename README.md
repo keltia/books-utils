@@ -47,7 +47,7 @@ also generate JSON, YAML or XML by specifying the `-f` option.
 
 ## Compatibility
 
-It should run on most Ruby implementations, it has been tested with Ruby MRI 2.1
+It should run on most Ruby implementations, it has been tested with Ruby MRI 2.0 & 2.1
 and Rubinius 2.2.*.
 
 ## BUGS
