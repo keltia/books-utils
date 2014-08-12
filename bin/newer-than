@@ -79,12 +79,15 @@ def get_list(threshold, library_path = nil)
   #
   Dir.mktmpdir(TMPDIR) do |dir|
 
+    request = "'#added:>=#{threshold} or date:>=#{threshold}'"
+    fields = '"title,authors,series,series_index"'
+
     # Use calibredb to fetch data
     #
     if library_path.nil?
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s '#added:>=#{threshold}' --fields 'title,authors,series,series_index' --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --fields #{fields} --sort-by 'authors'}
     else
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s '#added:>=#{threshold}' --with-library=#{library_path} --fields 'title,authors,series,series_index' --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --with-library=#{library_path} --fields #{fields} --sort-by 'authors'}
     end
 
     if FileTest.exists?(File.join(dir, 'calibre.csv'))
