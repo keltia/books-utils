@@ -186,6 +186,9 @@ def main(argv)
   # Send to pastebin directly?
   do_pastebin = false
 
+  # Display results?
+  be_quiet = false
+
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-h] [-D path] [-f format] [-d DATE | -t DAYS]
 
@@ -220,6 +223,10 @@ Default is 1 day.  Default format is space-delimited.
       end
       format = opt_format
     end
+    opts.on('-q', '--quiet', 'Do not display the result (generally with -P).') do
+      |opt_quiet|
+      be_quiet = true
+    end
     opts.on('-t', '--newer-than=DAYS', 'Threshold date to look for') do
       |opt_newer|
       threshold = opt_newer.to_i
@@ -245,7 +252,9 @@ Default is 1 day.  Default format is space-delimited.
   #
   unless list.nil?
     str = format_results(list, newer_than, format)
-    puts(str)
+    unless be_quiet
+      puts(str)
+    end
     if do_pastebin
       puts(send_pastebin(str, newer_than))
     end

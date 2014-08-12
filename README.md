@@ -32,6 +32,7 @@ date each book was added, or edit the source to change `#added:` into `date:`.
       -P, --pastebin                   Post directly to pastebin.
       -d, --since=DATE                 Use that date to search after or ALL
       -f, --format=json|yaml|xml       Specify output format
+      -q, --quiet                      Do not display the result (generally with -P).
       -t, --newer-than=DAYS            Threshold date to look for
       -h  --help                       Display this usage
 
