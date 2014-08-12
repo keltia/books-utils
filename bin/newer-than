@@ -60,7 +60,7 @@ def check_threshold(threshold, that_date)
     # old enough
     #
     if that_date == 'ALL'
-      that_date = '2000-01-01'
+      that_date = '1970-01-01'
     end
     newer_than = Time.parse(that_date)
   end
