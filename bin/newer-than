@@ -81,13 +81,14 @@ def get_list(threshold, library_path = nil)
 
     request = "'#added:>=#{threshold} or date:>=#{threshold}'"
     fields = '"title,authors,series,series_index"'
+    opts = '--dont-notify-gui'
 
     # Use calibredb to fetch data
     #
     if library_path.nil?
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --fields #{fields} --sort-by 'authors'}
+      ret = %x{calibredb #{opts} catalog #{dir}/calibre.csv -s #{request} --fields #{fields} --sort-by 'authors'}
     else
-      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --with-library=#{library_path} --fields #{fields} --sort-by 'authors'}
+      ret = %x{calibredb #{opts} catalog #{dir}/calibre.csv -s #{request} --with-library=#{library_path} --fields #{fields} --sort-by 'authors'}
     end
 
     if FileTest.exists?(File.join(dir, 'calibre.csv'))
