@@ -27,6 +27,7 @@ require 'yaml'
 require 'oj'
 require 'ox'
 require 'pastebin'
+require 'zip'
 
 # My modules
 #
@@ -80,15 +81,15 @@ def get_list(threshold, library_path = nil)
   Dir.mktmpdir(TMPDIR) do |dir|
 
     request = "'#added:>=#{threshold} or date:>=#{threshold}'"
-    fields = '"title,authors,series,series_index"'
+    fields = '"title,authors,series,series_index,library_name,cover"'
     opts = '--dont-notify-gui'
 
     # Use calibredb to fetch data
     #
     if library_path.nil?
-      ret = %x{calibredb #{opts} catalog #{dir}/calibre.csv -s #{request} --fields #{fields} --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --fields #{fields} --sort-by 'authors' #{opts}}
     else
-      ret = %x{calibredb #{opts} catalog #{dir}/calibre.csv -s #{request} --with-library=#{library_path} --fields #{fields} --sort-by 'authors'}
+      ret = %x{calibredb catalog #{dir}/calibre.csv -s #{request} --with-library=#{library_path} --fields #{fields} --sort-by 'authors' #{opts}}
     end
 
     if FileTest.exists?(File.join(dir, 'calibre.csv'))
@@ -98,7 +99,7 @@ def get_list(threshold, library_path = nil)
       File.open("#{dir}/calibre.csv", 'r', encoding: 'UTF-8') do |fr|
         bom = fr.seek(3)
         rest = fr.read
-        raw_list = CSV.parse(rest, converters: :numeric)
+        raw_list = CSV.parse(rest)
       end
     else
       $stderr.puts("Something went wrong, no csv generated")
@@ -111,9 +112,12 @@ def get_list(threshold, library_path = nil)
   header_list = raw_list.shift
   book_list = raw_list.inject([]) {|list, e|
     he = Hash.new
-    header_list.map {|h| he[h] = e[header_list.index(h)]}
+    header_list.map {|h|
+      he[h] = e[header_list.index(h)]
+    }
     list << he
   }
+  book_list
 end
 
 # Output results in the desired format
@@ -122,7 +126,19 @@ end
 # @param [String] format use the specified format (default is plain display)
 # @return [String] result
 def format_results(list, newer_than, format = nil)
+  # Output
   out = ''
+
+  # Extract some other info for format == zip
+  #
+  library_name = list[0]['library_name']
+  library_path = File.join((list[0]['cover'].split("/#{library_name}/"))[0],
+                           library_name)
+
+  # Filter out the cover field which is entirely local
+  final = list.map {|bk| bk.delete('cover'); bk }
+
+  str_newer = newer_than.to_s.split(%r{T})[0]
   case format
     when /json/
       out = Oj.dump(list)
@@ -130,10 +146,47 @@ def format_results(list, newer_than, format = nil)
       out = Ox.dump(list, :effort => :tolerant)
     when /yaml/
       out = list.to_yaml
+    when /zip/
+
+      zipfile_fn = "/tmp/calibre-#{str_newer}.zip"
+      if File.exists?(zipfile_fn)
+        File.unlink(zipfile_fn)
+      end
+
+      # Write the output zip
+      #
+      Dir.chdir(library_path) do
+
+        Zip.continue_on_exists_proc = true
+        Zip.sort_entries = true
+        Zip.unicode_names = true
+        #
+        # Try to avoid registering local paths
+        #
+        Zip::File.open(zipfile_fn, Zip::File::CREATE) do |zipfile|
+          #
+          # For each book, gather the list of files
+          #
+          list.each do |bk|
+            full = File.join(bk['authors'], "#{bk['title']}*", '*')
+            puts("Looking into #{File.join(bk['authors'], bk['title'])}")
+            begin
+              Dir[full].sort.each do |file|
+                unless File.directory?(file)
+                  puts("Adding #{file}")
+                  #zipfile.add(bk['title'], file)
+                end
+              end
+            rescue => msg
+              $stderr.puts("Error: #{msg} : #{full} : #{file}")
+            end
+          end # -- list
+        end # -- Zip::File
+        puts("Zip archive is #{zipfile_fn}")
+      end # -- chdir
     else
       # Remove the date part after the T (timezone and hours)
       #
-      str_newer = newer_than.to_s.split(%r{T})[0]
       out = "#{list.length} new/updated books since #{str_newer}:\n\n"
       list.each do |bk|
          series = bk['series']
@@ -208,6 +261,8 @@ Default is 1 day.  Default format is space-delimited.
 #{usage}
   EOTEXT
 
+  #$DEBUG = true
+
   argv.options do |opts|
     opts.banner = banner
     opts.on('-D', '--library=DIR', 'Use that library path instead of the default.') do
@@ -224,7 +279,7 @@ Default is 1 day.  Default format is space-delimited.
     end
     opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
       |opt_format|
-      if opt_format !~ %r{json|yaml|xml}
+      if opt_format !~ %r{json|yaml|xml|zip}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
         return 1
       end
