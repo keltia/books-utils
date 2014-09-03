@@ -141,7 +141,7 @@ def format_results(list, newer_than, format = nil)
          else
            title = "#{bk['title']} (#{series}, ##{bk['series_index']})"
          end
-         out += "Authors: %-25s\tTitle: %s\n" % [bk['authors'], title]
+         out += "Authors: %-25.25s\tTitle: %s\n" % [bk['authors'], title]
       end
   end
   out
