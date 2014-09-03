@@ -130,7 +130,10 @@ def format_results(list, newer_than, format = nil)
     when /yaml/
       out = list.to_yaml
     else
-      out = "#{list.length} new/updated books since #{newer_than}:\n\n"
+      # Remove the date part after the T (timezone and hours)
+      #
+      str_newer = newer_than.to_s.split(%r{T})[0]
+      out = "#{list.length} new/updated books since #{str_newer}:\n\n"
       list.each do |bk|
          series = bk['series']
          if series == ''
