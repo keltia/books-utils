@@ -197,7 +197,7 @@ def main(argv)
   be_quiet = false
 
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-h] [-D path] [-f format] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hvP] [-D path] [-f format] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
