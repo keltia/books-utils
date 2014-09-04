@@ -146,41 +146,6 @@ def format_results(list, newer_than, format = nil)
       out = Ox.dump(list, :effort => :tolerant)
     when /yaml/
       out = list.to_yaml
-    when /zip/
-
-      zipfile_fn = "/tmp/calibre-#{str_newer}.zip"
-      if File.exists?(zipfile_fn)
-        File.unlink(zipfile_fn)
-      end
-
-      # Write the output zip
-      #
-      Dir.chdir(library_path) do
-
-        Zip.continue_on_exists_proc = true
-        Zip.sort_entries = true
-        Zip.unicode_names = true
-        #
-        # Try to avoid registering local paths
-        #
-        Zip::File.open(zipfile_fn, Zip::File::CREATE) do |zipfile|
-          #
-          # For each book, gather the list of files
-          #
-          list.each do |bk|
-            all_files = File.join(bk['authors'], "#{bk['title']}*", '*')
-            puts("Looking into #{File.join(bk['authors'], bk['title'])}")
-            begin
-              Dir[all_files].sort.each do |file|
-                zipfile.add(file, file)
-              end
-            rescue => msg
-              $stderr.puts("Error: #{msg} : #{full} : #{file}")
-            end
-          end # -- list
-        end # -- Zip::File
-        puts("Zip archive is #{zipfile_fn}")
-      end # -- chdir
     else
       # Remove the date part after the T (timezone and hours)
       #
@@ -196,6 +161,57 @@ def format_results(list, newer_than, format = nil)
       end
   end
   out
+end
+
+# Build a zipfile with all new files in it
+#
+# @param [String] list of new books
+# @param [String] newer_than threshold date
+# @param [String] zipdir directory to put the .zip into
+# @return [String] path of the zip file
+def zipfile(list, newer_than, zipdir = '')
+
+  # Extract some other info for format == zip
+  #
+  library_name = list[0]['library_name']
+  library_path = File.join((list[0]['cover'].split("/#{library_name}/"))[0],
+                           library_name)
+
+  str_newer = newer_than.to_s.split(%r{T})[0]
+
+  zipfile_fn = File.join(zipdir, "calibre-#{str_newer}.zip")
+  if File.exists?(zipfile_fn)
+    File.unlink(zipfile_fn)
+  end
+
+  # Write the output zip
+  #
+  Dir.chdir(library_path) do
+
+    Zip.continue_on_exists_proc = true
+    Zip.sort_entries = true
+    Zip.unicode_names = true
+    #
+    # Try to avoid registering local paths
+    #
+    Zip::File.open(zipfile_fn, Zip::File::CREATE) do |zipfile|
+      #
+      # For each book, gather the list of files
+      #
+      list.each do |bk|
+        all_files = File.join(bk['authors'], "#{bk['title']}*", '*')
+        puts("Looking into #{File.join(bk['authors'], bk['title'])}")
+        begin
+          Dir[all_files].sort.each do |file|
+            zipfile.add(file, file)
+          end
+        rescue => msg
+          $stderr.puts("Error: #{msg} : #{full} : #{file}")
+        end
+      end # -- list
+    end # -- Zip::File
+  end # -- chdir
+  zipfile_fn
 end
 
 # Sends the result string to pastebin.com as a private paste
@@ -246,8 +262,14 @@ def main(argv)
   # Display results?
   be_quiet = false
 
+  # Optional Zip file
+  do_zipfile = false
+
+  # Default dest for zip file
+  zipdir = '/tmp'
+
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-hvP] [-D path] [-f format] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hvP] [-D path] [-f format] [-o zip] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
@@ -268,17 +290,25 @@ Default is 1 day.  Default format is space-delimited.
       |opt_pastebin|
       do_pastebin = true
     end
+    opts.on('-Z', '--zip', 'Generate a zip file with the new files.') do
+      |opt_zip|
+      do_zipfile = true
+    end
     opts.on('-d', '--since=DATE', 'Use that date to search after') do
       |opt_date|
       that_date = opt_date
     end
     opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
       |opt_format|
-      if opt_format !~ %r{json|yaml|xml|zip}
+      if opt_format !~ %r{json|yaml|xml}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
         return 1
       end
       format = opt_format
+    end
+    opts.on('-o', '--output-file=FILE', 'Set output file for -fzip.') do
+      |opt_output|
+      zipdir = opt_output
     end
     opts.on('-q', '--quiet', 'Do not display the result (generally with -P).') do
       |opt_quiet|
@@ -312,8 +342,17 @@ Default is 1 day.  Default format is space-delimited.
     unless be_quiet
       puts(str)
     end
+
+    # Options
+    #
+    # -P
     if do_pastebin
       puts(send_pastebin(str, newer_than))
+    end
+
+    # -Z
+    if do_zipfile
+      puts("Zip file is %s" % zipfile(list, newer_than, zipdir))
     end
   end
   0
