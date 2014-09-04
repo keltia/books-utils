@@ -136,21 +136,21 @@ def format_results(list, newer_than, format = nil)
                            library_name)
 
   # Filter out the cover field which is entirely local
-  final = list.map {|bk| bk.delete('cover'); bk }
+  final = list.dup.map {|bk| bk.delete('cover'); bk }
 
   str_newer = newer_than.to_s.split(%r{T})[0]
   case format
     when /json/
-      out = Oj.dump(list)
+      out = Oj.dump(final)
     when /xml/
-      out = Ox.dump(list, :effort => :tolerant)
+      out = Ox.dump(final, :effort => :tolerant)
     when /yaml/
-      out = list.to_yaml
+      out = final.to_yaml
     else
       # Remove the date part after the T (timezone and hours)
       #
-      out = "#{list.length} new/updated books since #{str_newer}:\n\n"
-      list.each do |bk|
+      out = "#{final.length} new/updated books since #{str_newer}:\n\n"
+      final.each do |bk|
          series = bk['series']
          if series == ''
            title = bk['title']
