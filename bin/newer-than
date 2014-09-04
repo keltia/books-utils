@@ -306,7 +306,7 @@ Default is 1 day.  Default format is space-delimited.
       end
       format = opt_format
     end
-    opts.on('-o', '--output-file=FILE', 'Set output file for -fzip.') do
+    opts.on('', '--output-dir=DIR', 'Set output dir for -Z, default is ".".') do
       |opt_output|
       zipdir = opt_output
     end
