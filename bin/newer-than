@@ -168,14 +168,11 @@ def format_results(list, newer_than, format = nil)
           # For each book, gather the list of files
           #
           list.each do |bk|
-            full = File.join(bk['authors'], "#{bk['title']}*", '*')
+            all_files = File.join(bk['authors'], "#{bk['title']}*", '*')
             puts("Looking into #{File.join(bk['authors'], bk['title'])}")
             begin
-              Dir[full].sort.each do |file|
-                unless File.directory?(file)
-                  puts("Adding #{file}")
-                  #zipfile.add(bk['title'], file)
-                end
+              Dir[all_files].sort.each do |file|
+                zipfile.add(file, file)
               end
             rescue => msg
               $stderr.puts("Error: #{msg} : #{full} : #{file}")
