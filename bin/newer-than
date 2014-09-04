@@ -261,8 +261,6 @@ Default is 1 day.  Default format is space-delimited.
 #{usage}
   EOTEXT
 
-  #$DEBUG = true
-
   argv.options do |opts|
     opts.banner = banner
     opts.on('-D', '--library=DIR', 'Use that library path instead of the default.') do
