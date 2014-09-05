@@ -13,28 +13,32 @@ with `git`and use `bundler` and `rake` to do it manually.
 
 ## Dependencies
 
-It should install the dependencies itself automagically (namely Ox & Oj for
-XML and JSON support and `pastebin`.
+It should install the dependencies itself automagically (namely `Ox` & `Oj` for
+XML and JSON support and `pastebin` for `-P` support.  `gem` should to the right thing
+when installing.
 
-You MUST install the command-line utilities from within Calibre for this to
+You *MUST* install the command-line utilities from within Calibre for this to
 work as it relies on `calibredb` for querying the library.
 
-You MUST also have a custom column named 'Added:' that is supposed to have the
+You *MUST* also have a custom column named 'Added:' that is supposed to have the
 date each book was added, or edit the source to change `#added:` into `date:`.
 
 ## Usage
 
-    Usage: newer-than [-h] [-D path] [-f format] [-d DATE | -t DAYS]
+Usage: newer-than [-hqvPZ] [-D path] [-f format] [--output-dir=DIR] [-d DATE | -t DAYS]
 
-    Default is 1 day.  Default format is space-delimited.
+Default is 1 day.  Default format is space-delimited.
 
-      -D, --library=DIR                Use that library path instead of the default.
-      -P, --pastebin                   Post directly to pastebin.
-      -d, --since=DATE                 Use that date to search after or ALL
-      -f, --format=json|yaml|xml       Specify output format
-      -q, --quiet                      Do not display the result (generally with -P).
-      -t, --newer-than=DAYS            Threshold date to look for
-      -h  --help                       Display this usage
+    -D, --library=DIR                Use that library path instead of the default.
+    -P, --pastebin                   Post directly to pastebin.
+    -Z, --zip                        Generate a zip file with the new files.
+    -d, --since=DATE                 Use that date to search after
+    -f, --format=json|yaml|xml       Specify output format
+        --output-dir=DIR
+                                     Set output dir for -Z, default is ".".
+    -q, --quiet                      Do not display the result (generally with -P).
+    -t, --newer-than=DAYS            Threshold date to look for
+    -h, --help                       Display this usage
 
 `-d ALL` lists all books.
 
