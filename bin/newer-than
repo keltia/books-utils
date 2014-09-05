@@ -68,12 +68,32 @@ def check_threshold(threshold, that_date)
   newer_than.iso8601
 end
 
+# Arrange results
+#
+# Turn the raw array of arrays into something we can use later
+#
+# @param [Array] list all new books
+# @return [Array] array of hashes
+def arrange_results(raw_list)
+  # Turn this raw array of arrays into something usable
+  #
+  header_list = raw_list.shift
+  book_list = raw_list.inject([]) {|list, e|
+    he = Hash.new
+    header_list.map {|h|
+      he[h] = e[header_list.index(h)]
+    }
+    list << he
+  }
+  book_list
+end
+
 # Get list
 #
 # @param [Fixnum] threshold number of days to check books for
 # @return [Array] list of books id in CSV
 def get_list(threshold, library_path = nil)
-  book_list = nil
+  list = nil
   raw_list  = nil
 
   # Wrap the temp directory
@@ -107,17 +127,15 @@ def get_list(threshold, library_path = nil)
     end
   end
 
-  # Turn this raw array of arrays into something usable
+  list = arrange_results(raw_list)
+
+  # Extract some other info
   #
-  header_list = raw_list.shift
-  book_list = raw_list.inject([]) {|list, e|
-    he = Hash.new
-    header_list.map {|h|
-      he[h] = e[header_list.index(h)]
-    }
-    list << he
-  }
-  book_list
+  @library_name = list[0]['library_name'].dup
+  cover = list[0]['cover'].dup
+  @library_path = File.join((cover.split("/#{@library_name}/"))[0], @library_name)
+
+  list
 end
 
 # Output results in the desired format
@@ -128,12 +146,6 @@ end
 def format_results(list, newer_than, format = nil)
   # Output
   out = ''
-
-  # Extract some other info for format == zip
-  #
-  library_name = list[0]['library_name']
-  library_path = File.join((list[0]['cover'].split("/#{library_name}/"))[0],
-                           library_name)
 
   # Filter out the cover field which is entirely local
   final = list.dup.map {|bk| bk.delete('cover'); bk }
