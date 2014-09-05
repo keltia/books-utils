@@ -181,13 +181,7 @@ end
 # @param [String] newer_than threshold date
 # @param [String] zipdir directory to put the .zip into
 # @return [String] path of the zip file
-def zipfile(list, newer_than, zipdir = '')
-
-  # Extract some other info for format == zip
-  #
-  library_name = list[0]['library_name']
-  library_path = File.join((list[0]['cover'].split("/#{library_name}/"))[0],
-                           library_name)
+def zipfile(list, newer_than, zipdir = '/tmp')
 
   str_newer = newer_than.to_s.split(%r{T})[0]
 
@@ -198,7 +192,7 @@ def zipfile(list, newer_than, zipdir = '')
 
   # Write the output zip
   #
-  Dir.chdir(library_path) do
+  Dir.chdir(@library_path) do
 
     Zip.continue_on_exists_proc = true
     Zip.sort_entries = true
@@ -206,22 +200,27 @@ def zipfile(list, newer_than, zipdir = '')
     #
     # Try to avoid registering local paths
     #
-    Zip::File.open(zipfile_fn, Zip::File::CREATE) do |zipfile|
-      #
-      # For each book, gather the list of files
-      #
-      list.each do |bk|
-        all_files = File.join(bk['authors'], "#{bk['title']}*", '*')
-        puts("Looking into #{File.join(bk['authors'], bk['title'])}")
-        begin
-          Dir[all_files].sort.each do |file|
-            zipfile.add(file, file)
+    begin
+      Zip::File.open(zipfile_fn, Zip::File::CREATE) do |zfh|
+        #
+        # For each book, gather the list of files
+        #
+        list.each do |bk|
+          authr_base = bk['authors'].split(/,/)[0]
+          all_files = File.join(authr_base, "#{bk['title']}*", '*')
+          puts("Looking into #{File.join(authr_base, bk['title'])}")
+          begin
+            Dir[all_files].sort.each do |file|
+              zfh.add(file, file)
+            end
+          rescue => msg
+            $stderr.puts("Error: #{msg} : #{full} : #{file}")
           end
-        rescue => msg
-          $stderr.puts("Error: #{msg} : #{full} : #{file}")
-        end
-      end # -- list
-    end # -- Zip::File
+        end # -- list
+      end # -- Zip::File
+    rescue => msg
+      $stderr.puts("Error creating zip: #{msg}")
+    end
   end # -- chdir
   zipfile_fn
 end
