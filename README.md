@@ -35,7 +35,7 @@ Default is 1 day.  Default format is space-delimited.
     -d, --since=DATE                 Use that date to search after
     -f, --format=json|yaml|xml       Specify output format
         --output-dir=DIR
-                                     Set output dir for -Z, default is ".".
+                                     Set output dir for -Z, default is "/tmp".
     -q, --quiet                      Do not display the result (generally with -P).
     -t, --newer-than=DAYS            Threshold date to look for
     -h, --help                       Display this usage
@@ -47,6 +47,8 @@ To post directly into a pastebin, install the `pastebin` gem and use
     newer-than -dYYYY-MM-DD -P
     
 You may need to get an API key for pastebin, see [the pastebin API](http://pastebin.com/api).
+
+If you want to generate a Zip file with all new files, please use `-Z`.  Default directory is `/tmp`.  The filename will have the date specified.
 
 ## Output formats
  
