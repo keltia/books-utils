@@ -208,7 +208,6 @@ def zipfile(list, newer_than, zipdir = '/tmp')
         list.each do |bk|
           authr_base = bk['authors'].split(/,/)[0]
           all_files = File.join(authr_base, "#{bk['title']}*", '*')
-          puts("Looking into #{File.join(authr_base, bk['title'])}")
           begin
             Dir[all_files].sort.each do |file|
               zfh.add(file, file)
