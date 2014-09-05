@@ -280,7 +280,7 @@ def main(argv)
   zipdir = '/tmp'
 
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-hvP] [-D path] [-f format] [-o zip] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hqvP] [-D path] [-f format] [--output-dir=DIR] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
