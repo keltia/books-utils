@@ -123,7 +123,7 @@ def get_list(threshold, library_path = nil)
       end
     else
       $stderr.puts("Something went wrong, no csv generated")
-      nil
+      return nil
     end
   end
 
