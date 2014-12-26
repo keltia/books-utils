@@ -411,7 +411,9 @@ Default is 1 day.  Default format is space-delimited.
     end
     # -Z
     if do_zipfile
-      puts("Zip file is %s" % zipfile(list, newer_than, zipdir))
+      path = zipfile(list, newer_than, zipdir)
+      size = File::Stat.size / 1024
+      puts("Zip file is %s (%d KB)" % [path, size])
     end
   end
   0
