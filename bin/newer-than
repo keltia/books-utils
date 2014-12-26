@@ -18,6 +18,7 @@ $LOAD_PATH.unshift(File.join(__dir__, File.expand_path($0), '..', 'lib'))
 #
 require 'csv'
 require 'optparse'
+require 'rss'
 require 'time'
 require 'tmpdir'
 require 'yaml'
@@ -38,6 +39,9 @@ ONEDAY = (3600*24)
 
 # Path to the tmp file for results
 TMPDIR = ".newer-than"
+
+# Name of the RSS file
+RSSFILE = 'rss.xml'
 
 # Check threshold
 #
@@ -138,6 +142,42 @@ def get_list(threshold, library_path = nil)
   list
 end
 
+# Generate an RSS feed
+#
+# @param [Array] list   all the results
+# @param [String] descr string to describe the feed
+# @return [String] the generated RSS file
+def make_rss(list, descr)
+  out = ''
+  my_time = Time.now.to_s
+
+  out = RSS::Maker.make('atom') do |feed|
+    feed.channel.author = 'roberto'
+    feed.channel.updated = my_time
+    feed.channel.about = "https://assets.keltia.net/books/#{RSSFILE}"
+    feed.channel.title = 'New/updated books'
+
+    list.each_with_index do |book, idx|
+      series = book['series']
+      if series == ''
+        title = book['title']
+      else
+        title = "#{book['title']} (#{series}, ##{book['series_index']})"
+      end
+
+      feed.items.new_item do |item|
+        item.id = idx.to_s
+        item.author = book['authors']
+        item.link = 'https://copy.com/jPuwu8T1ybeC'
+        item.title = title
+        item.updated = my_time
+      end
+    end
+  end
+  puts out
+  out
+end
+
 # Output results in the desired format
 #
 # @param [Array] list    all the results
@@ -151,6 +191,7 @@ def format_results(list, newer_than, format = nil)
   final = list.dup.map {|bk| bk.delete('cover'); bk }
 
   str_newer = newer_than.to_s.split(%r{T})[0]
+  out = "#{final.length} new/updated books since #{str_newer}:\n\n"
   case format
     when /json/
       out = Oj.dump(final)
@@ -158,10 +199,11 @@ def format_results(list, newer_than, format = nil)
       out = Ox.dump(final, :effort => :tolerant)
     when /yaml/
       out = final.to_yaml
+    when /rss/
+      out = make_rss(final, out)
     else
       # Remove the date part after the T (timezone and hours)
       #
-      out = "#{final.length} new/updated books since #{str_newer}:\n\n"
       final.each do |bk|
          series = bk['series']
          if series == ''
@@ -310,8 +352,8 @@ Default is 1 day.  Default format is space-delimited.
     end
     opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
       |opt_format|
-      if opt_format !~ %r{json|yaml|xml}
-        $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml!")
+      if opt_format !~ %r{json|yaml|rss|xml}
+        $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml|rss!")
         return 1
       end
       format = opt_format
@@ -360,6 +402,13 @@ Default is 1 day.  Default format is space-delimited.
       puts(send_pastebin(str, newer_than))
     end
 
+    # -f rss
+    if format == 'rss'
+      File.open("/tmp/#{RSSFILE}", "w+") do |fh|
+        fh.puts(str)
+      end
+      puts("RSS file is in /tmp/#{RSSFILE}")
+    end
     # -Z
     if do_zipfile
       puts("Zip file is %s" % zipfile(list, newer_than, zipdir))

@@ -33,7 +33,7 @@ Default is 1 day.  Default format is space-delimited.
     -P, --pastebin                   Post directly to pastebin.
     -Z, --zip                        Generate a zip file with the new files.
     -d, --since=DATE                 Use that date to search after
-    -f, --format=json|yaml|xml       Specify output format
+    -f, --format=json|rss|yaml|xml   Specify output format
         --output-dir=DIR
                                      Set output dir for -Z, default is "/tmp".
     -q, --quiet                      Do not display the result (generally with -P).
@@ -52,19 +52,18 @@ If you want to generate a Zip file with all new files, please use `-Z`.  Default
 
 ## Output formats
  
-The default is a simple space-delimited output, suited for cut&paste. You can
-also generate JSON, YAML or XML by specifying the `-f` option.
+The default is a simple space-delimited output, suited for cut&paste. You can also generate JSON,
+YAML, RSS or XML by specifying the `-f` option.  RSS variant is Atom only for the moment.
 
 ## Compatibility
 
-It should run on most Ruby implementations, it has been tested with Ruby MRI 2.0 & 2.1
+It should run on most Ruby implementations, it has been tested with Ruby MRI 2.x
 and Rubinius 2.2.*.
 
 ## BUGS
 
-Not tested on Windows at all, no system to check on.  Tested on OSX.
-Should work on FreeBSD and Linux.  If not please submit issues (and patch
-if you can).
+Not tested on Windows at all, no system to check on.  Developped & Tested on OS X.
+Should work on FreeBSD and Linux.  If not please submit issues (and patch if you can).
 
 ## Contributing
 
