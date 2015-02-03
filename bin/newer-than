@@ -43,6 +43,25 @@ TMPDIR = ".newer-than"
 # Name of the RSS file
 RSSFILE = 'rss.xml'
 
+# Config file
+RCFILE = File.join(ENV['HOME'], '.config', 'books-utils.yml')
+
+# Read config
+#
+# @param [String] path path to the configuration file
+# @return [Hash] hash of values
+def read_config(path = RCFILE)
+  config = nil
+  begin
+    File.open(RCFILE, 'r') do |fh|
+      config = YAML.load(fh)
+    end
+  rescue => msg
+    $stderr.puts("Warning: #{RCFILE} not found.")
+  end
+  config
+end
+
 # Check threshold
 #
 # @param [String|Fixnum] value threshold value to be checked
@@ -320,8 +339,11 @@ def main(argv)
   # Default dest for zip file
   zipdir = '/tmp'
 
+  # config file
+  rcfile = nil
+
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-hqvP] [-D path] [-f format] [--output-dir=DIR] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hqvP] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
@@ -346,6 +368,10 @@ Default is 1 day.  Default format is space-delimited.
       |opt_zip|
       do_zipfile = true
     end
+    opts.on('-c', '--config-file=FILE', 'Specify a configuration file, default is ~/.config/books-utils.yml') do
+      |opt_config|
+      rcfile = opt_config
+    end
     opts.on('-d', '--since=DATE', 'Use that date to search after') do
       |opt_date|
       that_date = opt_date
@@ -358,7 +384,7 @@ Default is 1 day.  Default format is space-delimited.
       end
       format = opt_format
     end
-    opts.on('', '--output-dir=DIR', 'Set output dir for -Z, default is ".".') do
+    opts.on('-o', '--output-dir=DIR', 'Set output dir for -Z, default is ".".') do
       |opt_output|
       zipdir = opt_output
     end
@@ -378,6 +404,10 @@ Default is 1 day.  Default format is space-delimited.
   end
 
   argv.options = nil
+
+  # Read default options
+  #
+  config = read_config(rcfile)
 
   # Manage options
   #
@@ -412,7 +442,7 @@ Default is 1 day.  Default format is space-delimited.
     # -Z
     if do_zipfile
       path = zipfile(list, newer_than, zipdir)
-      size = File::Stat.size / 1024
+      size = File.stat(path).size / 1024
       puts("Zip file is %s (%d KB)" % [path, size])
     end
   end
