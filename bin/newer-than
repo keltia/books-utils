@@ -193,7 +193,6 @@ def make_rss(list, descr)
       end
     end
   end
-  puts out
   out
 end
 
