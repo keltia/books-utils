@@ -172,10 +172,10 @@ def make_rss(list, descr)
   my_time = Time.now.to_s
 
   out = RSS::Maker.make('atom') do |feed|
-    feed.channel.author = 'roberto'
+    feed.channel.author = @config[MYNAME]['author']
     feed.channel.updated = my_time
-    feed.channel.about = "https://assets.keltia.net/books/#{RSSFILE}"
-    feed.channel.title = 'New/updated books'
+    feed.channel.about = @config[MYNAME]['rss']
+    feed.channel.title = @config[MYNAME]['title']
 
     list.each_with_index do |book, idx|
       series = book['series']
@@ -188,7 +188,7 @@ def make_rss(list, descr)
       feed.items.new_item do |item|
         item.id = idx.to_s
         item.author = book['authors']
-        item.link = 'https://copy.com/jPuwu8T1ybeC'
+        item.link = @config[MYNAME]['where_uri']
         item.title = title
         item.updated = my_time
       end
@@ -407,7 +407,7 @@ Default is 1 day.  Default format is space-delimited.
 
   # Read default options
   #
-  config = read_config(rcfile)
+  @config = read_config(rcfile)
 
   # Manage options
   #
