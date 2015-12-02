@@ -21,13 +21,13 @@ require 'optparse'
 require 'rss'
 require 'time'
 require 'tmpdir'
-require 'yaml'
 
 # Non-standard modules
 #
 require 'oj'
 require 'ox'
 require 'pastebin'
+require 'toml'
 require 'zip'
 
 # My modules
@@ -44,7 +44,7 @@ TMPDIR = ".newer-than"
 RSSFILE = 'rss.xml'
 
 # Config file
-RCFILE = File.join(ENV['HOME'], '.config', 'books-utils.yml')
+RCFILE = File.join(ENV['HOME'], '.books-utils', 'config.toml')
 
 # Read config
 #
@@ -53,11 +53,12 @@ RCFILE = File.join(ENV['HOME'], '.config', 'books-utils.yml')
 def read_config(path = RCFILE)
   config = nil
   begin
-    File.open(RCFILE, 'r') do |fh|
-      config = YAML.load(fh)
+    if File.exist?(path)
+      config = TOML.load_file(path)
     end
   rescue => msg
-    $stderr.puts("Warning: #{RCFILE} not found.")
+    $stderr.puts("Error: #{path} not found.")
+    exit 1
   end
   config
 end
