@@ -21,13 +21,13 @@ require 'optparse'
 require 'rss'
 require 'time'
 require 'tmpdir'
-require 'yaml'
 
 # Non-standard modules
 #
 require 'oj'
 require 'ox'
 require 'pastebin'
+require 'toml'
 require 'zip'
 
 # My modules
@@ -38,13 +38,13 @@ require 'books/utils/version'
 ONEDAY = (3600*24)
 
 # Path to the tmp file for results
-TMPDIR = ".newer-than"
+TMPDIR = ".#{MYNAME}"
 
 # Name of the RSS file
 RSSFILE = 'rss.xml'
 
 # Config file
-RCFILE = File.join(ENV['HOME'], '.config', 'books-utils.yml')
+RCFILE = File.join(ENV['HOME'], '.books-utils', 'config.toml')
 
 # Read config
 #
@@ -53,11 +53,12 @@ RCFILE = File.join(ENV['HOME'], '.config', 'books-utils.yml')
 def read_config(path = RCFILE)
   config = nil
   begin
-    File.open(RCFILE, 'r') do |fh|
-      config = YAML.load(fh)
+    if File.exist?(path)
+      config = TOML.load_file(path)
     end
   rescue => msg
-    $stderr.puts("Warning: #{RCFILE} not found.")
+    $stderr.puts("Error: #{path} not found.")
+    exit 1
   end
   config
 end
@@ -171,10 +172,10 @@ def make_rss(list, descr)
   my_time = Time.now.to_s
 
   out = RSS::Maker.make('atom') do |feed|
-    feed.channel.author = 'roberto'
+    feed.channel.author = @config[MYNAME]['author']
     feed.channel.updated = my_time
-    feed.channel.about = "https://assets.keltia.net/books/#{RSSFILE}"
-    feed.channel.title = 'New/updated books'
+    feed.channel.about = @config[MYNAME]['rss']
+    feed.channel.title = @config[MYNAME]['title']
 
     list.each_with_index do |book, idx|
       series = book['series']
@@ -187,7 +188,7 @@ def make_rss(list, descr)
       feed.items.new_item do |item|
         item.id = idx.to_s
         item.author = book['authors']
-        item.link = 'https://copy.com/jPuwu8T1ybeC'
+        item.link = @config[MYNAME]['where_uri']
         item.title = title
         item.updated = my_time
       end
@@ -339,7 +340,7 @@ def main(argv)
   zipdir = '/tmp'
 
   # config file
-  rcfile = nil
+  rcfile = RCFILE
 
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-hqvP] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
@@ -406,7 +407,7 @@ Default is 1 day.  Default format is space-delimited.
 
   # Read default options
   #
-  config = read_config(rcfile)
+  @config = read_config(rcfile)
 
   # Manage options
   #

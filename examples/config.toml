@@ -1,0 +1,6 @@
+[newer-than]
+
+author = "roberto"
+title = "New/updated books"
+rss = "YOUR_SITE/rss.xml"
+where_uri = "ANOTHER.SITE"
