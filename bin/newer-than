@@ -340,7 +340,7 @@ def main(argv)
   zipdir = '/tmp'
 
   # config file
-  rcfile = nil
+  rcfile = RCFILE
 
   usage = <<-"EOTEXT"
 Usage: #{MYNAME} [-hqvP] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
