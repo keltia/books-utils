@@ -38,7 +38,7 @@ require 'books/utils/version'
 ONEDAY = (3600*24)
 
 # Path to the tmp file for results
-TMPDIR = ".newer-than"
+TMPDIR = ".#{MYNAME}"
 
 # Name of the RSS file
 RSSFILE = 'rss.xml'
