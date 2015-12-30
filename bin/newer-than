@@ -381,7 +381,7 @@ Default is 1 day.  Default format is space-delimited.
       |opt_date|
       that_date = opt_date
     end
-    opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
+    opts.on('-f', '--format=json|yaml|rss|xml', 'Specify output format') do
       |opt_format|
       if opt_format !~ %r{json|yaml|rss|xml}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml|rss!")
