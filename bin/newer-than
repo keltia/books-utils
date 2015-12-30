@@ -413,6 +413,10 @@ Default is 1 day.  Default format is space-delimited.
   # Read default options
   #
   @config = read_config(rcfile)
+  if @config.nil?
+    $stderr.puts("Error: Missing data in #{rcfile}: #{@config}")
+    exit 2
+  end
 
   # Manage options
   #
