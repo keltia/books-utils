@@ -373,7 +373,7 @@ Default is 1 day.  Default format is space-delimited.
       |opt_zip|
       do_zipfile = true
     end
-    opts.on('-c', '--config-file=FILE', 'Specify a configuration file, default is ~/.config/books-utils.yml') do
+    opts.on('-c', '--config-file=FILE',"Specify a configuration file, default is #{rcfile}") do
       |opt_config|
       rcfile = opt_config
     end
