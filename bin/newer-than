@@ -152,6 +152,11 @@ def get_list(threshold, library_path = nil)
   end
 
   list = arrange_results(raw_list)
+  if list.nil?
+    $stderr.puts("Error: list is nil, here is #{raw_list}:")
+    $stderr.puts(raw_list)
+    exit 2
+  end
 
   # Extract some other info
   #
@@ -343,7 +348,7 @@ def main(argv)
   rcfile = RCFILE
 
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-hqvP] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hqvPZ] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
@@ -368,7 +373,7 @@ Default is 1 day.  Default format is space-delimited.
       |opt_zip|
       do_zipfile = true
     end
-    opts.on('-c', '--config-file=FILE', 'Specify a configuration file, default is ~/.config/books-utils.yml') do
+    opts.on('-c', '--config-file=FILE',"Specify a configuration file, default is #{rcfile}") do
       |opt_config|
       rcfile = opt_config
     end
@@ -376,7 +381,7 @@ Default is 1 day.  Default format is space-delimited.
       |opt_date|
       that_date = opt_date
     end
-    opts.on('-f', '--format=json|yaml|xml', 'Specify output format') do
+    opts.on('-f', '--format=json|yaml|rss|xml', 'Specify output format') do
       |opt_format|
       if opt_format !~ %r{json|yaml|rss|xml}
         $stderr.puts("Error: invalid format #{opt_format}, use json|xml|yaml|rss!")
@@ -408,6 +413,10 @@ Default is 1 day.  Default format is space-delimited.
   # Read default options
   #
   @config = read_config(rcfile)
+  if @config.nil?
+    $stderr.puts("Error: Missing data in #{rcfile}: #{@config}")
+    exit 2
+  end
 
   # Manage options
   #
