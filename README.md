@@ -29,7 +29,7 @@ anymore as it now contains some of the previously hardcoded variables.
 
 ## Usage
 
-newer-than v0.6.0
+newer-than v<version>
 
 Usage: newer-than [-hqvPZ] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
 
