@@ -348,7 +348,7 @@ def main(argv)
   rcfile = RCFILE
 
   usage = <<-"EOTEXT"
-Usage: #{MYNAME} [-hqvP] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
+Usage: #{MYNAME} [-hqvPZ] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
 
 Default is 1 day.  Default format is space-delimited.
   EOTEXT
