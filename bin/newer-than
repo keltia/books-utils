@@ -153,7 +153,7 @@ def get_list(threshold, library_path = nil)
 
   list = arrange_results(raw_list)
   if list.nil?
-    $stderr.puts("Error: list is nil, here is #{raw_list}:")
+    $stderr.puts("Error: list is nil, here is raw_list:")
     $stderr.puts(raw_list)
     exit 2
   end
