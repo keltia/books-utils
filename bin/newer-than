@@ -158,6 +158,12 @@ def get_list(threshold, library_path = nil)
     exit 2
   end
 
+  if list[0].nil?
+    $stderr.puts("Error: list[0] is nil, here are list&raw_list:")
+    $stderr.puts("  list: #{list}")
+    $stderr.puts("  raw_list: #{raw_list}")
+    exit 2
+  end
   # Extract some other info
   #
   @library_name = list[0]['library_name'].dup
