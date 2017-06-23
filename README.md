@@ -29,7 +29,7 @@ anymore as it now contains some of the previously hardcoded variables.
 
 ## Usage
 
-newer-than v0.6.0
+newer-than v<version>
 
 Usage: newer-than [-hqvPZ] [-D path] [-c RCFILE] [-f format] [-o DIR] [-d DATE | -t DAYS]
 
@@ -73,7 +73,7 @@ Should work on FreeBSD and Linux.  If not please submit issues (and patch if you
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/books-utils/fork )
+1. Fork it ( https://github.com/keltia/books-utils/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
