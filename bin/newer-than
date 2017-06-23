@@ -126,7 +126,7 @@ def get_list(threshold, library_path = nil)
 
     request = "'#added:>=#{threshold} or date:>=#{threshold}'"
     fields = '"title,authors,series,series_index,library_name,cover"'
-    opts = '--dont-notify-gui'
+    opts = ''
 
     # Use calibredb to fetch data
     #
